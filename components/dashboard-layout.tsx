@@ -1,0 +1,255 @@
+"use client"
+
+import { useState } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { motion, AnimatePresence } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import {
+  Sprout,
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  BarChart3,
+  Wallet,
+  MessageSquare,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+  Bell,
+  ChevronDown,
+  Brain,
+  HelpCircle,
+} from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+const sidebarLinks = [
+  { href: "/farmer/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/farmer/products", icon: Package, label: "My Products" },
+  { href: "/farmer/orders", icon: ShoppingCart, label: "Orders" },
+  { href: "/farmer/analytics", icon: BarChart3, label: "Analytics" },
+  { href: "/farmer/earnings", icon: Wallet, label: "Earnings" },
+  { href: "/farmer/ai-insights", icon: Brain, label: "AI Insights" },
+  { href: "/farmer/messages", icon: MessageSquare, label: "Messages" },
+  { href: "/farmer/settings", icon: Settings, label: "Settings" },
+]
+
+export function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Mobile Header */}
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 h-16 border-b border-border bg-background/95 backdrop-blur-sm">
+        <div className="flex items-center justify-between h-full px-4">
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="p-2 -ml-2 hover:bg-muted rounded-lg"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <Sprout className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <span className="font-bold">FarmoraAI</span>
+          </Link>
+
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-destructive" />
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSidebarOpen(false)}
+              className="lg:hidden fixed inset-0 z-50 bg-background/80 backdrop-blur-sm"
+            />
+            <motion.aside
+              initial={{ x: -300 }}
+              animate={{ x: 0 }}
+              exit={{ x: -300 }}
+              transition={{ type: "spring", damping: 25 }}
+              className="lg:hidden fixed left-0 top-0 bottom-0 z-50 w-72 bg-sidebar border-r border-sidebar-border"
+            >
+              <SidebarContent
+                pathname={pathname}
+                onClose={() => setIsSidebarOpen(false)}
+              />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-72 flex-col bg-sidebar border-r border-sidebar-border">
+        <SidebarContent pathname={pathname} />
+      </aside>
+
+      {/* Main Content */}
+      <main className="lg:ml-72 pt-16 lg:pt-0 min-h-screen">
+        {/* Desktop Header */}
+        <header className="hidden lg:flex h-16 items-center justify-between px-6 border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-40">
+          <div>
+            <h1 className="text-lg font-semibold text-foreground">
+              Welcome back, Ramesh!
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Here&apos;s what&apos;s happening with your farm today.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-destructive" />
+            </Button>
+
+            <Button variant="ghost" size="icon">
+              <HelpCircle className="w-5 h-5" />
+            </Button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="gap-2">
+                  <Avatar className="w-8 h-8">
+                    <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                      RK
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="font-medium">Ramesh Kumar</span>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem>
+                  <Settings className="w-4 h-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-destructive">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <div className="p-4 lg:p-6">{children}</div>
+      </main>
+    </div>
+  )
+}
+
+function SidebarContent({
+  pathname,
+  onClose,
+}: {
+  pathname: string
+  onClose?: () => void
+}) {
+  return (
+    <div className="flex flex-col h-full">
+      {/* Logo */}
+      <div className="h-16 flex items-center justify-between px-4 border-b border-sidebar-border">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+            <Sprout className="w-6 h-6 text-primary-foreground" />
+          </div>
+          <span className="text-xl font-bold text-sidebar-foreground">
+            Farmora<span className="text-primary">AI</span>
+          </span>
+        </Link>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="lg:hidden p-2 hover:bg-sidebar-accent rounded-lg"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
+      </div>
+
+      {/* User Card */}
+      <div className="p-4">
+        <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
+          <div className="flex items-center gap-3">
+            <Avatar className="w-12 h-12 border-2 border-primary/20">
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                RK
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-semibold text-sidebar-foreground">Ramesh Kumar</p>
+              <p className="text-sm text-muted-foreground">Verified Farmer</p>
+            </div>
+          </div>
+          <div className="mt-4 pt-4 border-t border-primary/20 grid grid-cols-2 gap-4 text-center">
+            <div>
+              <p className="text-2xl font-bold text-primary">12</p>
+              <p className="text-xs text-muted-foreground">Products</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-primary">₹45K</p>
+              <p className="text-xs text-muted-foreground">This Month</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+        {sidebarLinks.map((link) => {
+          const isActive = pathname === link.href
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={onClose}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
+                isActive
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent"
+              }`}
+            >
+              <link.icon className="w-5 h-5" />
+              {link.label}
+            </Link>
+          )
+        })}
+      </nav>
+
+      {/* Bottom Section */}
+      <div className="p-4 border-t border-sidebar-border">
+        <Link href="/">
+          <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive">
+            <LogOut className="w-5 h-5" />
+            Sign out
+          </Button>
+        </Link>
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "userType": "farmer",
+    "name": "Farmora Farmer",
+    "email": "farmer@example.com",
+    "phone": "+91 98765 43210",
+    "location": "Village Market",
+    "password": "password123"
+  },
+  {
+    "userType": "farmer",
+    "name": "Charan",
+    "email": "charanghanta17@gmail.com",
+    "phone": "6305229247",
+    "location": "jangareddygudem",
+    "password": "Charan@123!"
+  },
+  {
+    "userType": "buyer",
+    "name": "charan",
+    "email": "charanghanta1@gmail.com",
+    "phone": "9515727327",
+    "location": "eluru",
+    "password": "Charan@123!"
+  }
+]
