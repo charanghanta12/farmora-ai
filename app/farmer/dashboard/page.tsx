@@ -22,79 +22,29 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 
-const stats = [
-  {
-    title: "Total Products",
-    value: "12",
-    change: "+2",
-    trend: "up",
-    icon: Package,
-    color: "text-blue-500",
-    bgColor: "bg-blue-500/10",
-  },
-  {
-    title: "Active Orders",
-    value: "8",
-    change: "+3",
-    trend: "up",
-    icon: ShoppingCart,
-    color: "text-amber-500",
-    bgColor: "bg-amber-500/10",
-  },
-  {
-    title: "This Month Earnings",
-    value: "₹45,230",
-    change: "+12.5%",
-    trend: "up",
-    icon: Wallet,
-    color: "text-green-500",
-    bgColor: "bg-green-500/10",
-  },
-  {
-    title: "AI Price Boost",
-    value: "+18%",
-    change: "vs market",
-    trend: "up",
-    icon: TrendingUp,
-    color: "text-purple-500",
-    bgColor: "bg-purple-500/10",
-  },
-]
+type Product = {
+  id: string
+  ownerEmail: string
+  name: string
+  category: string
+  unit: string
+  price: number
+  stock: number
+  sold: number
+  status: "active" | "out_of_stock"
+  description: string
+  location: string
+  createdAt: string
+}
 
-const recentOrders = [
-  {
-    id: "ORD-001",
-    buyer: "Fresh Mart Restaurant",
-    product: "Tomatoes",
-    quantity: "50 kg",
-    amount: "₹2,250",
-    status: "delivered",
-  },
-  {
-    id: "ORD-002",
-    buyer: "City Grocers",
-    product: "Onions",
-    quantity: "100 kg",
-    amount: "₹3,500",
-    status: "shipped",
-  },
-  {
-    id: "ORD-003",
-    buyer: "Hotel Grand",
-    product: "Green Chillies",
-    quantity: "20 kg",
-    amount: "₹1,600",
-    status: "processing",
-  },
-  {
-    id: "ORD-004",
-    buyer: "Wholesale Hub",
-    product: "Potatoes",
-    quantity: "200 kg",
-    amount: "₹6,000",
-    status: "pending",
-  },
-]
+type Order = {
+  id: string
+  buyer: string
+  product: string
+  quantity: string
+  amount: string
+  status: "delivered" | "shipped" | "processing" | "pending"
+}
 
 const aiInsights = [
   {
@@ -128,6 +78,9 @@ export default function FarmerDashboard() {
   const router = useRouter()
   const [authChecked, setAuthChecked] = useState(false)
   const [userName, setUserName] = useState<string | null>(null)
+  const [products, setProducts] = useState<Product[]>([])
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const storedAuth = getAuth()
@@ -137,17 +90,82 @@ export default function FarmerDashboard() {
     }
     setUserName(storedAuth.user.name)
     setAuthChecked(true)
+
+    // Fetch user data
+    fetchUserData(storedAuth.user.email || "")
   }, [router])
+
+  const fetchUserData = async (email: string) => {
+    try {
+      // Fetch products
+      const productsRes = await fetch(`/api/products?email=${encodeURIComponent(email)}`)
+      if (productsRes.ok) {
+        const productsData = await productsRes.json()
+        setProducts(productsData.products || [])
+      }
+
+      // For now, orders are empty as they're not implemented
+      setOrders([])
+    } catch (error) {
+      console.error("Error fetching user data:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const totalProducts = products.length
+  const activeOrders = orders.filter(o => o.status === "processing" || o.status === "shipped").length
+  const totalEarnings = products.reduce((sum, p) => sum + (p.sold * p.price), 0)
+  const aiPriceBoost = "+0%" // Placeholder
+
+  const stats = [
+    {
+      title: "Total Products",
+      value: totalProducts.toString(),
+      change: "+0",
+      trend: "up",
+      icon: Package,
+      color: "text-blue-500",
+      bgColor: "bg-blue-500/10",
+    },
+    {
+      title: "Active Orders",
+      value: activeOrders.toString(),
+      change: "+0",
+      trend: "up",
+      icon: ShoppingCart,
+      color: "text-amber-500",
+      bgColor: "bg-amber-500/10",
+    },
+    {
+      title: "This Month Earnings",
+      value: `₹${totalEarnings.toLocaleString()}`,
+      change: "+0%",
+      trend: "up",
+      icon: Wallet,
+      color: "text-green-500",
+      bgColor: "bg-green-500/10",
+    },
+    {
+      title: "AI Price Boost",
+      value: aiPriceBoost,
+      change: "vs market",
+      trend: "up",
+      icon: TrendingUp,
+      color: "text-purple-500",
+      bgColor: "bg-purple-500/10",
+    },
+  ]
 
   const handleLogout = () => {
     clearAuth()
     router.push("/")
   }
 
-  if (!authChecked) {
+  if (!authChecked || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-base text-muted-foreground">Checking login...</p>
+        <p className="text-base text-muted-foreground">Loading dashboard...</p>
       </div>
     )
   }
@@ -241,38 +259,39 @@ export default function FarmerDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {recentOrders.map((order) => (
+                  {orders.length > 0 ? orders.slice(0, 4).map((order) => (
                     <div
                       key={order.id}
                       className="flex items-center justify-between p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
                     >
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                          <Package className="w-6 h-6 text-primary" />
+                          <ShoppingCart className="w-6 h-6 text-primary" />
                         </div>
                         <div>
-                          <p className="font-medium text-foreground">
-                            {order.product}
-                          </p>
+                          <p className="font-medium text-foreground">{order.buyer}</p>
                           <p className="text-sm text-muted-foreground">
-                            {order.buyer} • {order.quantity}
+                            {order.product} • {order.quantity}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold text-foreground">
-                          {order.amount}
-                        </p>
+                        <p className="font-medium text-foreground">{order.amount}</p>
                         <Badge
-                          className={`${
-                            statusColors[order.status as keyof typeof statusColors]
-                          } border-0 capitalize`}
+                          variant="secondary"
+                          className={`text-xs ${statusColors[order.status]}`}
                         >
                           {order.status}
                         </Badge>
                       </div>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-center py-8">
+                      <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">No orders yet</p>
+                      <p className="text-sm text-muted-foreground">Your orders will appear here once you start selling</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

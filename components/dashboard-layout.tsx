@@ -30,6 +30,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { getAuth, clearAuth } from "@/lib/auth"
 
 const sidebarLinks = [
   { href: "/farmer/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -45,6 +46,9 @@ const sidebarLinks = [
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const auth = getAuth()
+  const userName = auth?.user?.name || "User"
+  const initials = userName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
 
   return (
     <div className="min-h-screen bg-background">
@@ -112,7 +116,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <header className="hidden lg:flex h-16 items-center justify-between px-6 border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-40">
           <div>
             <h1 className="text-lg font-semibold text-foreground">
-              Welcome back, Ramesh!
+              Welcome back, {userName}!
             </h1>
             <p className="text-sm text-muted-foreground">
               Here&apos;s what&apos;s happening with your farm today.
@@ -134,10 +138,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <Button variant="ghost" className="gap-2">
                   <Avatar className="w-8 h-8">
                     <AvatarFallback className="bg-primary/10 text-primary text-sm">
-                      RK
+                      {initials}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-medium">Ramesh Kumar</span>
+                  <span className="font-medium">{userName}</span>
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
@@ -149,7 +153,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-destructive">
                   <LogOut className="w-4 h-4 mr-2" />
-                  Sign out
+                  Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
