@@ -2,6 +2,7 @@ export type AuthUser = {
   name: string
   email?: string
   phone?: string
+  userType?: "farmer" | "buyer"
 }
 
 export type AuthData = {

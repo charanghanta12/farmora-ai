@@ -22,5 +22,21 @@
     "phone": "9515727327",
     "location": "eluru",
     "password": "Charan@123!"
+  },
+  {
+    "userType": "buyer",
+    "name": "Charan",
+    "email": "Charan@gmail.com",
+    "phone": "9948827327",
+    "location": "Jrg",
+    "password": "Charan@123!"
+  },
+  {
+    "userType": "buyer",
+    "name": "sai",
+    "email": "Charan1@gmail.com",
+    "phone": "9491022414",
+    "location": "kmkt",
+    "password": "Charan@123!"
   }
 ]

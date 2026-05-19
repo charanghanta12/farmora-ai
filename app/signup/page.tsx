@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, FormEvent } from "react"
+import { Suspense, useState, FormEvent } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { motion } from "framer-motion"
@@ -358,7 +358,9 @@ function SignupForm() {
 export default function SignupPage() {
   return (
     <LanguageProvider>
-      <SignupForm />
+      <Suspense fallback={null}>
+        <SignupForm />
+      </Suspense>
     </LanguageProvider>
   )
 }

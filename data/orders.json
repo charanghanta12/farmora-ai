@@ -1,0 +1,25 @@
+[
+  {
+    "id": "1778662479940-rfetar",
+    "buyerEmail": "Charan1@gmail.com",
+    "buyerName": "sai",
+    "buyerPhone": "9491022414",
+    "items": [
+      {
+        "productId": "1778656802073-q9n3ae",
+        "productName": "mango",
+        "farmerEmail": "charanghanta17@gmail.com",
+        "farmerName": "charanghanta17@gmail.com",
+        "price": 45,
+        "quantity": 25,
+        "unit": "kg",
+        "category": "fruits",
+        "location": "jangareddygudem, andhra pradesh"
+      }
+    ],
+    "totalAmount": 1125,
+    "status": "pending",
+    "createdAt": "2026-05-13T08:54:39.940Z",
+    "updatedAt": "2026-05-13T08:54:39.941Z"
+  }
+]

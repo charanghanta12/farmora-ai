@@ -1,7 +1,32 @@
 import { streamText, convertToModelMessages } from 'ai'
+import { openai } from '@ai-sdk/openai'
 
 export async function POST(req: Request) {
-  const { messages } = await req.json()
+  const body = await req.json()
+  const messages = Array.isArray(body?.messages) ? body.messages : undefined
+
+  if (!messages) {
+    return new Response(
+      JSON.stringify({ error: 'Missing messages in chat request body.' }),
+      {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )
+  }
+
+  if (!process.env.OPENAI_API_KEY) {
+    return new Response(
+      JSON.stringify({
+        error:
+          'OpenAI API key is missing. Set OPENAI_API_KEY in .env.local or your deployment environment.',
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )
+  }
 
   const systemPrompt = `You are Farmora AI Assistant, a helpful agricultural expert assistant for Indian farmers and buyers on the Farmora marketplace platform.
 
@@ -32,7 +57,7 @@ Sample market data you can reference:
 You can communicate in English, Hindi, or Telugu based on user preference.`
 
   const result = streamText({
-    model: 'openai/gpt-4o-mini',
+    model: openai('gpt-4o-mini'),
     system: systemPrompt,
     messages: await convertToModelMessages(messages),
   })

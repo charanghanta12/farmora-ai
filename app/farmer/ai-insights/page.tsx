@@ -124,9 +124,3 @@ export default function FarmerAIInsightsPage() {
     </DashboardLayout>
   )
 }
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}

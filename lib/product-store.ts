@@ -47,6 +47,11 @@ export async function getProductsByOwner(ownerEmail: string) {
   return products.filter((product) => product.ownerEmail.toLowerCase() === ownerEmail.toLowerCase())
 }
 
+export async function getAllProducts() {
+  const products = await readProducts()
+  return products
+}
+
 export async function addProduct(product: ProductRecord) {
   const products = await readProducts()
   products.push(product)
