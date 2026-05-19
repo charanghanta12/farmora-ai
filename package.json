@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start",
     "lint": "eslint ."
@@ -42,6 +42,7 @@
     "@react-three/fiber": "^9.6.1",
     "@vercel/analytics": "1.6.1",
     "ai": "^6.0.177",
+    "@ai-sdk/openai": "^3.0.64",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

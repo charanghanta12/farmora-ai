@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "id": "1778656802073-q9n3ae",
+    "ownerEmail": "charanghanta17@gmail.com",
+    "name": "mango",
+    "category": "fruits",
+    "unit": "kg",
+    "price": 45,
+    "stock": 75,
+    "sold": 25,
+    "status": "active",
+    "description": "mango",
+    "location": "jangareddygudem, andhra pradesh",
+    "createdAt": "2026-05-13T07:20:02.073Z"
+  }
+]

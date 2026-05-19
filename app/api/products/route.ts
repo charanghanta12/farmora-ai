@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server"
-import { addProduct, getProductsByOwner, ProductRecord } from "@/lib/product-store"
+import { addProduct, getProductsByOwner, getAllProducts, ProductRecord } from "@/lib/product-store"
 
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const email = url.searchParams.get("email")
+  const all = url.searchParams.get("all")
 
-  if (!email) {
-    return NextResponse.json({ error: "Missing email query." }, { status: 400 })
+  // If fetching all products (for buyer marketplace)
+  if (all === "true" || !email) {
+    const products = await getAllProducts()
+    return NextResponse.json({ success: true, products })
   }
 
   const products = await getProductsByOwner(email)

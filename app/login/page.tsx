@@ -32,8 +32,10 @@ function LoginForm() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (getAuth()) {
-      router.replace("/farmer/dashboard")
+    const auth = getAuth()
+    if (auth) {
+      const redirectPath = auth.user.userType === "buyer" ? "/buyer/dashboard" : "/farmer/dashboard"
+      router.replace(redirectPath)
     }
   }, [router])
 
@@ -73,7 +75,8 @@ function LoginForm() {
         user: result.user,
       })
 
-      router.push("/farmer/dashboard")
+      const redirectPath = result.user.userType === "buyer" ? "/buyer/dashboard" : "/farmer/dashboard"
+      router.push(redirectPath)
     } catch (err) {
       setError("Unable to login. Please try again.")
       setLoading(false)

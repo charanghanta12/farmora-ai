@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -30,7 +30,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { AIChatbot } from "@/components/ai-chatbot"
 import { getAuth, clearAuth } from "@/lib/auth"
+
+type Product = {
+  price: number
+  sold: number
+}
 
 const sidebarLinks = [
   { href: "/farmer/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -45,10 +51,59 @@ const sidebarLinks = [
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const auth = getAuth()
-  const userName = auth?.user?.name || "User"
-  const initials = userName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+  const [userName, setUserName] = useState("User")
+  const [userEmail, setUserEmail] = useState("")
+  const [products, setProducts] = useState<Product[]>([])
+
+  useEffect(() => {
+    const auth = getAuth()
+    setUserName(auth?.user?.name || "User")
+    setUserEmail(auth?.user?.email || "")
+  }, [])
+
+  useEffect(() => {
+    if (!userEmail) {
+      setProducts([])
+      return
+    }
+
+    async function fetchProducts() {
+      try {
+        const response = await fetch(`/api/products?email=${encodeURIComponent(userEmail)}`)
+        if (!response.ok) {
+          setProducts([])
+          return
+        }
+
+        const data = await response.json()
+        setProducts(data.products || [])
+      } catch {
+        setProducts([])
+      }
+    }
+
+    fetchProducts()
+  }, [userEmail])
+
+  const initials = useMemo(
+    () =>
+      userName
+        .split(" ")
+        .map((name) => name[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2) || "U",
+    [userName]
+  )
+  const totalProducts = products.length
+  const monthlyEarnings = products.reduce((sum, product) => sum + product.sold * product.price, 0)
+
+  const handleSignOut = () => {
+    clearAuth()
+    router.push("/")
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -99,6 +154,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <SidebarContent
                 pathname={pathname}
                 onClose={() => setIsSidebarOpen(false)}
+                userName={userName}
+                initials={initials}
+                totalProducts={totalProducts}
+                monthlyEarnings={monthlyEarnings}
+                onSignOut={handleSignOut}
               />
             </motion.aside>
           </>
@@ -107,7 +167,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-72 flex-col bg-sidebar border-r border-sidebar-border">
-        <SidebarContent pathname={pathname} />
+        <SidebarContent
+          pathname={pathname}
+          userName={userName}
+          initials={initials}
+          totalProducts={totalProducts}
+          monthlyEarnings={monthlyEarnings}
+          onSignOut={handleSignOut}
+        />
       </aside>
 
       {/* Main Content */}
@@ -151,7 +218,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive">
+                <DropdownMenuItem className="text-destructive" onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Log out
                 </DropdownMenuItem>
@@ -163,6 +230,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         {/* Page Content */}
         <div className="p-4 lg:p-6">{children}</div>
       </main>
+      <AIChatbot />
     </div>
   )
 }
@@ -170,9 +238,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 function SidebarContent({
   pathname,
   onClose,
+  userName,
+  initials,
+  totalProducts,
+  monthlyEarnings,
+  onSignOut,
 }: {
   pathname: string
   onClose?: () => void
+  userName: string
+  initials: string
+  totalProducts: number
+  monthlyEarnings: number
+  onSignOut: () => void
 }) {
   return (
     <div className="flex flex-col h-full">
@@ -202,21 +280,21 @@ function SidebarContent({
           <div className="flex items-center gap-3">
             <Avatar className="w-12 h-12 border-2 border-primary/20">
               <AvatarFallback className="bg-primary text-primary-foreground">
-                RK
+                {initials}
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-semibold text-sidebar-foreground">Ramesh Kumar</p>
+              <p className="font-semibold text-sidebar-foreground">{userName}</p>
               <p className="text-sm text-muted-foreground">Verified Farmer</p>
             </div>
           </div>
           <div className="mt-4 pt-4 border-t border-primary/20 grid grid-cols-2 gap-4 text-center">
             <div>
-              <p className="text-2xl font-bold text-primary">12</p>
+              <p className="text-2xl font-bold text-primary">{totalProducts}</p>
               <p className="text-xs text-muted-foreground">Products</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-primary">₹45K</p>
+              <p className="text-2xl font-bold text-primary">₹{monthlyEarnings.toLocaleString()}</p>
               <p className="text-xs text-muted-foreground">This Month</p>
             </div>
           </div>
@@ -247,12 +325,14 @@ function SidebarContent({
 
       {/* Bottom Section */}
       <div className="p-4 border-t border-sidebar-border">
-        <Link href="/">
-          <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive">
-            <LogOut className="w-5 h-5" />
-            Sign out
-          </Button>
-        </Link>
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive"
+          onClick={onSignOut}
+        >
+          <LogOut className="w-5 h-5" />
+          Sign out
+        </Button>
       </div>
     </div>
   )
