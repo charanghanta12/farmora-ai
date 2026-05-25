@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: farmora-deployment
+  namespace: farmora
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: farmora
+
+  template:
+    metadata:
+      labels:
+        app: farmora
+
+    spec:
+      containers:
+      - name: farmora-container
+        image: charanghanta/farmora-ai
+
+        ports:
+        - containerPort: 5000
