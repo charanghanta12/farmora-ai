@@ -24,3 +24,8 @@ spec:
 
         ports:
         - containerPort: 5000
+        envFrom:
+        - configMapRef:
+            name: farmora-config
+        - secretRef:
+            name: charan-secret
