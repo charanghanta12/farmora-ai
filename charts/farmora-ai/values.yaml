@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: farmora-ai
+  repository: charanghanta/farmora-ai
   pullPolicy: IfNotPresent
   tag: latest
 
