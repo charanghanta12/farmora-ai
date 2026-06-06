@@ -1,0 +1,15 @@
+Farmora AI has been deployed.
+
+Service:
+  {{ include "farmora-ai.fullname" . }}:{{ .Values.service.port }}
+
+{{- if .Values.ingress.enabled }}
+Ingress hosts:
+{{- range .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+{{- end }}
+{{- else }}
+To access the app locally:
+  kubectl port-forward svc/{{ include "farmora-ai.fullname" . }} 3000:{{ .Values.service.port }}
+  http://127.0.0.1:3000
+{{- end }}
